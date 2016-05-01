@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html ng-app="todoMod">
+<head>
+  <title>待办事项</title>
+  <meta charset="utf-8">
+  <link rel='stylesheet' href='/lib/bootstrap/dist/css/bootstrap.css' />
+</head>
+<body ng-controller="todoCtrl" class="container">
+<div class="jumbotron text-center">
+  <h1>待办事项</h1>
+  <p>你有个{{todos.length}}待办事项</p>
+</div>
+
+<div class="row">
+  <div class="col-sm-4 col-sm-offet-4">
+    <div class="checkbox" ng-repeat="todo in todos">
+      <label>
+        <input ng-click="select(todo._id)" type="checkbox">{{todo.name}}
+      </label>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-4 col-sm-offset-4">
+    <div class="form-group">
+      <label for="thing">事件</label>
+      <input type="text" class="form-control" id="thing" ng-model="todo.name">
+    </div>
+    <div class="form-group">
+      <button class="btn btn-warning" ng-click="add()">增加</button>
+      <button class="btn btn-danger" ng-click="delete()">批量删除</button>
+    </div>
+  </div>
+</div>
+
+</body>
+<script src="/lib/angular/angular.js"></script>
+<script>
+  /*
+   1.调用后台接口取数据库中所有事项
+   2.增加的时候要把新的事项增加到数据库中
+   */
+  angular.module('todoMod',[]);
+  angular.module('todoMod').factory('todoService',function($http){
+    return {
+      query:function(){
+        return $http.get('/todos');
+      },
+      add:function(todo){
+        return $http.post('/todos',todo);
+      },
+      delete:function(ids){
+        return $http.post('/todos/batch',{ids:ids});
+      }
+    }
+  });
+  angular.module('todoMod').controller('todoCtrl',function($scope,todoService){
+    $scope.todo = {};
+    $scope.todos = [];
+    todoService.query().success(function(data){
+      $scope.todos = data;
+    });
+    $scope.add = function(){
+      todoService.add($scope.todo).success(function(data){
+        $scope.todos.push(data);
+        $scope.todo = {};
+      });
+    }
+    $scope.ids = [];
+    $scope.select = function(id){
+      var index = $scope.ids.indexOf(id);
+      if(index==-1){
+        $scope.ids.push(id);
+      }else{
+        $scope.ids.splice(index,1);
+      }
+    }
+    $scope.delete = function(){
+      todoService.delete($scope.ids).success(function(){
+        $scope.todos = $scope.todos.filter(function(todo){
+          //保留那些不在被删除的ID列表中的ID
+          return $scope.ids.indexOf(todo._id)==-1
+        });
+      });
+    }
+  });
+</script>
+</html>

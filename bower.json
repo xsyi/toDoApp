@@ -1,0 +1,22 @@
+{
+  "name": "toDoApp",
+  "description": "",
+  "main": "",
+  "authors": [
+    "yixiaoshan <yixiaoshan@xuetangx.com>"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "./public/lib",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.5.5",
+    "bootstrap": "^3.3.6"
+  }
+}
